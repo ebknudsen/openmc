@@ -781,6 +781,40 @@ class Point(Spatial):
         xyz = [float(x) for x in get_text(elem, 'parameters').split()]
         return cls(xyz)
 
+def cylindrical_uniform(r_outer, length, r_inner=0.0, phis=(0., 2*pi),
+                        origin=(0., 0., 0.), axis=(0., 0., 1.)):
+    """Return a uniform spatial distribution over a cylindrical shell.
+
+    This function provides a uniform spatial distribution over a cylindrical
+    shell between `r_inner` and `r_outer` with a given `axis` and `length` . Optionally, the range of angles
+    can be restricted by `phis` arguments. The cylinder is centered at origin.
+
+    Parameters
+    ----------
+    r_outer : float
+        Outer radius of the cylindrical shell in [cm]
+    length : float
+        Length of the cylindrical shell in [cm]
+    r_inner : float, optional
+        Inner radius of the cylindrical shell in [cm]
+    phis : iterable of float, optional
+        Starting and ending phi coordinates (azimuthal angle) in
+        radians in a reference frame centered at `origin`
+    origin: iterable of float, optional
+        Coordinates (x0, y0, z0) of the center of the cyindrical shell
+    axis: iterable of float, optional
+        central axis (vx, vy, vz) of the cylinder
+
+    Returns
+    -------
+    openmc.stats.CylindricalIndependent
+        Uniform distribution over the spherical shell
+    """
+
+    r_dist = PowerLaw(r_inner, r_outer, 1)
+    phis_dist = Uniform(phis[0],phis[1])
+    z_dist = Uniform(-length/2.,length/2.)
+    return CylindricalIndependent(r_dist, phis_dist, z_dist, origin)
 
 def spherical_uniform(r_outer, r_inner=0.0, thetas=(0., pi), phis=(0., 2*pi),
                       origin=(0., 0., 0.)):
