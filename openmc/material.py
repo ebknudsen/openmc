@@ -380,6 +380,30 @@ class Material(IDManagerMixin):
         # get the alpha-decay energy distribution for each nuclide
         # convert to a neutron distribution using mean free path
         # and cross section
+        dists = []
+        probs = []
+
+        source_per_atom={}
+        an_per_atom={}
+        #extract alpha energies and alpha-n cross sections from library
+        for nuc, atoms_per_bcm in self.get_nuclide_atom_densities().items():
+            source_per_atom[nuc] = openmc.data.decay_alpha_energy(nuc)
+            an_per_atom[nuc] = openmc.data.
+        for nuc_src,energy in source_per_atom.items():
+            if energy is not None:
+                prob=0
+                for nuc_tgt in an_per_atom.keys():
+                    for e in energy:
+                        #mean free path in material for alpha of energy e
+                        l=1e-6
+                        #molar weights for the combined material
+                        Ar_tgt=openmc.data.atomic_mass(nuc_tgt.name)
+                        #multiplicity of target
+                        M=4
+                        rho=self.density
+                        sigma_an=an_per_atom[nuc_tgt](energy)
+                        prob+=M*sigma_an*l/Ar_tgt
+                    probs(e)+=prob
 
         # Get combined distribution, clip low-intensity values in discrete spectra
         combined = openmc.data.combine_distributions(dists, probs)
