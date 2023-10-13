@@ -337,6 +337,59 @@ class Material(IDManagerMixin):
 
         return combined
 
+    def get_alpha_neutron_energy(
+            self,
+            clip_tolerance: float = 1e-6,
+            units: str = 'Bq',
+            volume: Optional[float] = None
+        ) -> Optional[Univariate]:
+        r"""Return energy distribution of decay photons from unstable nuclides.
+
+        .. versionadded:: 0.13.x
+
+        Parameters
+        ----------
+        clip_tolerance : float
+            Maximum fraction of :math:`\sum_i x_i p_i` for discrete
+            distributions that will be discarded.
+        units : {'Bq', 'Bq/g', 'Bq/cm3'}
+            Specifies the units on the integral of the distribution.
+        volume : float, optional
+            Volume of the material. If not passed, defaults to using the
+            :attr:`Material.volume` attribute.
+
+        Returns
+        -------
+        Neutron energy distribution resulting from the combination of alpha-decay and alpha-Xn reactions.
+        The integral of this distribution is the total intensity of the neutron source in the requested units.
+
+        """
+        cv.check_value('units', units, {'Bq', 'Bq/g', 'Bq/cm3'})
+        if units == 'Bq':
+            multiplier = volume if volume is not None else self.volume
+            if multiplier is None:
+                raise ValueError("volume must be specified if units='Bq'")
+        elif units == 'Bq/cm3':
+            multiplier = 1
+        elif units == 'Bq/g':
+            multiplier = 1.0 / self.get_mass_density()
+        # If no alpha sources, exit early
+        if not dists:
+            return None
+
+        # get the alpha-decay energy distribution for each nuclide
+        # convert to a neutron distribution using mean free path
+        # and cross section
+
+        # Get combined distribution, clip low-intensity values in discrete spectra
+        combined = openmc.data.combine_distributions(dists, probs)
+        if isinstance(combined, (Discrete, Mixture)):
+            combined.clip(clip_tolerance, inplace=True)
+
+
+       return combined
+
+
     @classmethod
     def from_hdf5(cls, group: h5py.Group) -> Material:
         """Create material from HDF5 group

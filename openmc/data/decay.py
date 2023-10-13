@@ -666,4 +666,46 @@ def decay_energy(nuclide: str):
 
     return _DECAY_ENERGY.get(nuclide, 0.0)
 
+_DECAY_ALPHA_ENERGY = {}
 
+def decay_alpha_energy(nuclide):
+    """Get alpha-particle energy distribution resulting from the decay of a nuclide
+
+    This function relies on data stored in a depletion chain. Before calling it
+    for the first time, you need to ensure that a depletion chain has been
+    specified in openmc.config['chain_file'].
+
+    .. versionadded:: 0.13.x
+
+    Parameters
+    ----------
+    nuclide : str
+        Name of nuclide, e.g., 'U235'
+
+    Returns
+    -------
+    openmc.stats.Univariate or None
+        Distribution of energies in [eV] of alpha particles emitted from decay, or None
+        if no alpha-particle source exists. Note that the probabilities represent
+        intensities, given as [Bq].
+    """
+    if not _DECAY_ALPHA_ENERGY:
+        chain_file = openmc.config.get('chain_file')
+        if chain_file is None:
+            raise DataError(
+                "A depletion chain file must be specified with "
+                "openmc.config['chain_file'] in order to load decay data."
+            )
+
+        from openmc.deplete import Chain
+        chain = Chain.from_xml(chain_file)
+        for nuc in chain.nuclides:
+            if 'alpha' in nuc.sources:
+                _DECAY_ALPHA_ENERGY[nuc.name] = nuc.sources['alpha']
+
+        # If the chain file contained no sources at all, warn the user
+        if not _DECAY_ALPHA_ENERGY:
+            warn(f"Chain file '{chain_file}' does not have any decay photon "
+                 "sources listed.")
+
+    return _DECAY_ALPHA_ENERGY.get(nuclide)
