@@ -904,7 +904,7 @@ class PhotonReaction(EqualityMixin):
     ----------
     anomalous_real : openmc.data.Tabulated1D
         Real part of the anomalous scattering factor
-    anomlaous_imag : openmc.data.Tabulated1D
+    anomalous_imag : openmc.data.Tabulated1D
         Imaginary part of the anomalous scatttering factor
     mt : int
         The ENDF MT number for this reaction.
