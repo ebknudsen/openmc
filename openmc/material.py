@@ -403,15 +403,13 @@ class Material(IDManagerMixin):
                         rho=self.density
                         sigma_an=an_per_atom[nuc_tgt](energy)
                         prob+=M*sigma_an*l/Ar_tgt
-                    probs(e)+=prob
+                    probs[e]+=prob
 
         # Get combined distribution, clip low-intensity values in discrete spectra
         combined = openmc.data.combine_distributions(dists, probs)
         if isinstance(combined, (Discrete, Mixture)):
             combined.clip(clip_tolerance, inplace=True)
-
-
-       return combined
+        return combined
 
 
     @classmethod
