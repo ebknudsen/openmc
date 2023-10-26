@@ -388,7 +388,7 @@ class Material(IDManagerMixin):
         #extract alpha energies and alpha-n cross sections from library
         for nuc, atoms_per_bcm in self.get_nuclide_atom_densities().items():
             source_per_atom[nuc] = openmc.data.decay_alpha_energy(nuc)
-            an_per_atom[nuc] = openmc.data.
+            #an_per_atom[nuc] = openmc.data
         for nuc_src,energy in source_per_atom.items():
             if energy is not None:
                 prob=0
