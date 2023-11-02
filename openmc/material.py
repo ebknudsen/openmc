@@ -388,7 +388,7 @@ class Material(IDManagerMixin):
         #extract alpha energies and alpha-n cross sections from library
         for nuc, atoms_per_bcm in self.get_nuclide_atom_densities().items():
             source_per_atom[nuc] = openmc.data.decay_alpha_energy(nuc)
-            #an_per_atom[nuc] = openmc.data
+            nuc_density[nuc]=atoms_per_bcm
         for nuc_src,energy in source_per_atom.items():
             if energy is not None:
                 prob=0
@@ -398,8 +398,8 @@ class Material(IDManagerMixin):
                         l=1e-6
                         #molar weights for the combined material
                         Ar_tgt=openmc.data.atomic_mass(nuc_tgt.name)
-                        #multiplicity of target
-                        M=4
+                        #multiplicity of target relative to source
+                        M=nuc_denisty[nuc_tgt]/nuc_density[nuc_src]
                         rho=self.density
                         sigma_an=an_per_atom[nuc_tgt](energy)
                         prob+=M*sigma_an*l/Ar_tgt
@@ -410,7 +410,6 @@ class Material(IDManagerMixin):
         if isinstance(combined, (Discrete, Mixture)):
             combined.clip(clip_tolerance, inplace=True)
         return combined
-
 
     @classmethod
     def from_hdf5(cls, group: h5py.Group) -> Material:
