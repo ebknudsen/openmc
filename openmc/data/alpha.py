@@ -86,4 +86,7 @@ class IncidentAlpha(EqualityMixin):
     # Read each reaction
     for mf, mt, nc, mod in ev.reaction_list:
       if mf == 3:
-        data.reactions[mt] = PhotonReaction.from_endf(ev, mt)
+        data.reactions[mt] = Reaction.from_endf(ev, mt)
+
+    data._evaluation = ev
+    return data
