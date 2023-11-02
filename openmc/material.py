@@ -343,7 +343,7 @@ class Material(IDManagerMixin):
             units: str = 'Bq',
             volume: Optional[float] = None
         ) -> Optional[Univariate]:
-        r"""Return energy distribution of decay photons from unstable nuclides.
+        r"""Return energy distribution of neutrons from unstable alpha-decay nuclides.
 
         .. versionadded:: 0.13.x
 
