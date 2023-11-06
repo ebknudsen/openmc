@@ -30,6 +30,28 @@ _REACTION_NAME = {
   153: ('(alpha,8n)', 'a8n'),
 }
 
+def _init_alpha_cross_sections():
+    an_cross_sections={}
+    #read the xml-file pointed to by config/environment var
+    #to find the cross section datafiles
+    import lxml.etree as ET
+    try:
+        fname=os.environ['OPENMC_AN_CROSS_SECTIONS']
+    except KeyError:
+        print("Error: Must specify a cross-section file in the environment var \"OPENMC_AN_CROSS_SECTIONS\" to use alpha-particle cross sections")
+        raise
+
+    tree=ET.parse(fname)
+    for xs in tree.iter():
+        if xs.tag=='library' and 'type' in xs.keys():
+            if xs.attrib['type']=='alpha_n':
+                atom_symbol=xs.attrib['materials']
+                path=os.path.join(os.path.dirname(fname),xs.attrib['path'])
+                an_cross_sections[atom_symbol]=path
+    return an_cross_sections
+
+_OPENMC_AN_CROSS_SECTIONS = _init_alpha_cross_sections()
+
 class IncidentAlpha(EqualityMixin):
   r"""Alpha particle interaction data
 
