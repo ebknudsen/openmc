@@ -336,6 +336,21 @@ class Material(IDManagerMixin):
 
         return combined
 
+    def alpha_mean_free_path(
+            self,energy
+        ) -> float:
+        r"""Return the mean free path in the materials for an incident alpha particle
+
+        .. versionadded:: 0.13.x
+
+        Parameters
+        ----------
+        energy : float
+            Energy of the incident alpha particle.
+        """
+        #extract the stopping power (from endf?)
+        return 1e-6
+
     def get_alpha_neutron_energy(
             self,
             clip_tolerance: float = 1e-6,
