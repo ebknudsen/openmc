@@ -13,6 +13,7 @@ from scipy.interpolate import CubicSpline
 import openmc.checkvalue as cv
 from openmc.mixin import EqualityMixin
 from . import HDF5_VERSION, HDF5_VERSION_MAJOR
+from .reaction import Reaction
 from .ace import Table, get_metadata, get_table
 from .data import ATOMIC_SYMBOL, EV_PER_MEV
 from .endf import Evaluation, get_head_record, get_tab1_record, get_list_record
