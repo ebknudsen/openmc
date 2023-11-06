@@ -396,29 +396,46 @@ class Material(IDManagerMixin):
 
         source_per_atom={}
         an_per_atom={}
+        nuc_density={}
+
         #extract alpha energies and alpha-n cross sections from library
         for nuc, atoms_per_bcm in self.get_nuclide_atom_densities().items():
             source_per_atom[nuc] = openmc.data.decay_alpha_energy(nuc)
             nuc_density[nuc]=atoms_per_bcm
-            an_per_atom[nuc]=IncidentAlpha().from_endf('TENDL2021')
+            tendl_path=openmc.data.alpha._OPENMC_AN_CROSS_SECTIONS[nuc]
+            an_per_atom[nuc]=openmc.data.IncidentAlpha(openmc.data.ATOMIC_NUMBER.get(nuc)).from_endf(tendl_path)
+
+        #if no alpha sources exit early
+        if not source_per_atom:
+            return None
+
+        #It appears TENDL-values are solely for 0K - use that for now.
+        temp_key='0K'
+
         for nuc_src,energy in source_per_atom.items():
             if energy is not None:
-                prob=0
-                for nuc_tgt in an_per_atom.keys():
-                    for e in energy:
+                for e,p in zip(energy.x,energy.p):
+                    prob=0
+                    for nuc_tgt in an_per_atom.keys():
+                    #maybe add a check for iterable energy distribution
+                    #if continous we might want to do seomthing else
                         #mean free path in material for alpha of energy e
-                        l=1e-6
+                        mfp=self.alpha_mean_free_path(e)
                         #molar weights for the combined material
-                        Ar_tgt=openmc.data.atomic_mass(nuc_tgt.name)
+                        Ar_tgt=openmc.data.atomic_mass(nuc_tgt)
                         #multiplicity of target relative to source
-                        M=nuc_denisty[nuc_tgt]/nuc_density[nuc_src]
+                        M=nuc_density[nuc_tgt]/nuc_density[nuc_src]
                         rho=self.density
-                        sigma_an=an_per_atom[nuc_tgt](energy)
-                        prob+=M*sigma_an*l/Ar_tgt
-                    probs[e]+=prob
-
+                        xs=an_per_atom[nuc_tgt].reactions[4].xs
+                        sigma_an=xs[temp_key](e)
+                        prob+=p*M*sigma_an*mfp/Ar_tgt
+                    probs.append(prob*multiplier*1e24)
+                #create a discrete distribution object with energies from original alpha lines
+                #and probs computed as the sum of neutron intensities from each of the target constituents.
+                #meaning probs has a slightly different meaning than for decay_photons
+                dists.append(openmc.stats.Discrete(energy.x,probs))
         # Get combined distribution, clip low-intensity values in discrete spectra
-        combined = openmc.data.combine_distributions(dists, probs)
+        combined = openmc.data.combine_distributions(dists, [1.0]*len(dists) )
         if isinstance(combined, (Discrete, Mixture)):
             combined.clip(clip_tolerance, inplace=True)
         return combined
