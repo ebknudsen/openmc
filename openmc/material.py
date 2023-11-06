@@ -21,7 +21,6 @@ from .mixin import IDManagerMixin
 from openmc.checkvalue import PathLike
 from openmc.stats import Univariate, Discrete, Mixture
 
-
 # Units for density supported by OpenMC
 DENSITY_UNITS = ('g/cm3', 'g/cc', 'kg/m3', 'atom/b-cm', 'atom/cm3', 'sum',
                  'macro')
@@ -373,9 +372,6 @@ class Material(IDManagerMixin):
             multiplier = 1
         elif units == 'Bq/g':
             multiplier = 1.0 / self.get_mass_density()
-        # If no alpha sources, exit early
-        if not dists:
-            return None
 
         # get the alpha-decay energy distribution for each nuclide
         # convert to a neutron distribution using mean free path

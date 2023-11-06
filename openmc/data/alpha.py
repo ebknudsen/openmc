@@ -98,7 +98,7 @@ class IncidentAlpha(EqualityMixin):
     ev_or_filename : openmc.data.evaluation or filename
       of ENDF-file that contains the data
     """
-    if isinstance(alpha, Evaluation):
+    if isinstance(ev_or_filename, Evaluation):
       ev = ev_or_filename
     else:
       ev = Evaluation(ev_or_filename)
