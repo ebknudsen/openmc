@@ -394,6 +394,7 @@ class Material(IDManagerMixin):
         dists = []
         probs = []
 
+        #extract nuclide parameters from data libraries
         source_per_atom={}
         an_per_atom={}
         nuc_density={}
