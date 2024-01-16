@@ -355,7 +355,8 @@ class Material(IDManagerMixin):
             self,
             clip_tolerance: float = 1e-6,
             units: str = 'Bq',
-            volume: Optional[float] = None
+            volume: Optional[float] = None,
+            dE_E: float = 1e-2,
         ) -> Optional[Univariate]:
         r"""Return energy distribution of neutrons from unstable alpha-decay nuclides.
 
@@ -413,23 +414,39 @@ class Material(IDManagerMixin):
         #It appears TENDL-values are solely for 0K - use that for now.
         temp_key='0K'
 
-        for nuc_src,energy in source_per_atom.items():
-            if energy is not None:
-                for e,p in zip(energy.x,energy.p):
+        for nuc_src,alphalines in source_per_atom.items():
+            if alphalines is not None:
+                for Ea,p in zip(alphalines.x,alphalines.p):
                     prob=0
                     for nuc_tgt in an_per_atom.keys():
-                    #maybe add a check for iterable energy distribution
-                    #if continous we might want to do seomthing else
-                        #mean free path in material for alpha of energy e
-                        mfp=self.alpha_mean_free_path(e)
-                        #molar weights for the combined material
+                        # mean free path in material for alpha of energy e
+                        mfp=self.alpha_mean_free_path(Ea)
+                        # molar weights for the combined material
                         Ar_tgt=openmc.data.atomic_mass(nuc_tgt)
-                        #multiplicity of target relative to source
+                        # multiplicity of target relative to source
                         M=nuc_density[nuc_tgt]/nuc_density[nuc_src]
                         rho=self.density
                         xs=an_per_atom[nuc_tgt].reactions[4].xs
-                        sigma_an=xs[temp_key](e)
+                        sigma_an=xs[temp_key](Ea)
                         prob+=p*M*sigma_an*mfp/Ar_tgt
+
+                        E0=xs[temp_key].x.min()
+                        if Ea<E0:
+                            # the energy of the emitted alpha-particle is smaller than
+                            # the minimum energy with (a,Xn) xs >0. no need to bother for
+                            # this target
+                            continue
+                        # generate a set of energy points that spans the interval [E0,Ea=e]
+                        # with desired relative resolution dE_E
+                        Nbins=int( np.ceil( ( np.log(Ea)-np.log(E0) )/(np.log(dE_E+1))+1) )
+                        edist=np.linspace(np.log(E0),np.log(Ea),Nbins)
+                        prob=np.array(edist.shape)
+                        for mt,(xs_name,xs_shortname) in openmc.data.alpha._REACTION_NAME.items():
+                            multiplicity=re.search(r'a\dn',xs_shortname)
+                            if multiplicity is None:
+                                multiplicity=1
+                            # for each point, generate the neutron yield per (a,Xn)-cross section >0 and sum
+                            prob=prob + [ an_per_atom[nuc_tgt].alpha_neutron_yield(E) for E in edist ]
                     probs.append(prob*multiplier*1e24)
                 #create a discrete distribution object with energies from original alpha lines
                 #and probs computed as the sum of neutron intensities from each of the target constituents.

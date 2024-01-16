@@ -147,21 +147,36 @@ def alpha_stopping_power(material: Material = None, E: float = 0.0) -> float:
         return 0
 
 
-def alpha_neutron_yield(material: Material = None, E: float = 0.0) -> float:
+def alpha_neutron_yield(material = None, E: float = 0.0) -> float:
     """
     Return the neutron yield per unit volume for an incident alpha particle
     with energy E.
 
-  @classmethod
-  def from_endf(cls, ev_or_filename):
-    """Generate incident alpha-particle data from ENDF evaluation
     Parameters
     ----------
-    materials: the material which the alpha particle is impinging upon
-    E:         the energy of the alpha particle
+    material: the material which the alpha particle is impinging upon
+    E:        the energy of the alpha particle
     """
     pass
 
-def alpha_neutron_distribution(material: Material = None, dE_E: float = 0.1) -> Tabular:
-    if material is None
+def alpha_neutron_distribution(material = None, Ea: float = 0.0, dE_E: float = 0.1) -> Tabular:
+    """
+    Returns a tabular distribution approximating the energy resolved neutron yield from a
+    single alpha particle travelling in a material
+
+    Parameters
+    ----------
+    material: the material which the alpha particle is impinging upon
+    Ea:        the energy of the alpha particle
+    dE_E:     the relative energy resolution of the resulting distribution
+    """
+    if material is None:
         return None
+    # foreach nuclide in material
+    ## get the minimum energy E0, this forms the integration bound together with the emission energy Ea
+    ## generate a set of energy points (logscale, with res. dE_E) in [E0,Ea]
+    ## foreach energy, E
+    ### X-weighted sum over all a,Xn cross sections at E * stopping power(E)
+    ## resulting distribution is xs-dist*A.E. xpproximation
+    E0=material
+    energy=np.logspace(E0,Ea)
