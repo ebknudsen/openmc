@@ -877,6 +877,17 @@ class DAGMCUniverse(UniverseBase):
 
         return sorted(set(material_tags_ascii))
 
+    @property
+    def implicit_complement(self):
+        return self._implicit_complement
+
+    @implicit_complement.setter
+    def implicit_complement(self, val):
+        cv.check_type('DAGMC Implicit complement material', val, str)
+        if not val.begins_with('mat:'):
+          val = 'mat:' + val
+        self._implicit_complement = val
+
     def get_all_cells(self, memo=None):
         return {}
 
@@ -942,6 +953,8 @@ class DAGMCUniverse(UniverseBase):
             dagmc_element.set('auto_geom_ids', 'true')
         if self.auto_mat_ids:
             dagmc_element.set('auto_mat_ids', 'true')
+        if self.implicit_complement:
+            dagmc_element.set('implicit_complement',self.implicit_complement)
         dagmc_element.set('filename', str(self.filename))
         xml_element.append(dagmc_element)
 
