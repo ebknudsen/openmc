@@ -111,6 +111,11 @@ public:
   //! DAGMC universe
   int32_t implicit_complement_idx() const;
 
+  //! Sets the material for the implicit complement's to ic_name in this
+  //! DAGMC universe
+  //! \param[in]  universe
+  void set_implicit_complement(const std::string ic_name) const;
+
   //! Transform UWUW materials into an OpenMC-readable XML format
   //! \return A string representing a materials.xml file of the UWUW materials
   //! in this universe

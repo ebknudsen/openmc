@@ -407,6 +407,15 @@ int32_t DAGUniverse::implicit_complement_idx() const
   return cell_idx_offset_ + dagmc_instance_->index_by_handle(ic) - 1;
 }
 
+void DAGUniverse::set_implicit_complement(std::string ic_name) const
+{
+  moab::EntityHandle ic;
+  moab::ErrorCode rval =
+    dagmc_instance_->geom_tool()->get_implicit_complement(ic);
+  MB_CHK_SET_ERR_CONT(rval, "Failed to set implicit complement to " + ic_name);
+  dmd_ptr->volume_material_property_data_eh[ic]=ic_name;
+}
+
 bool DAGUniverse::find_cell(GeometryState& p) const
 {
   // if the particle isn't in any of the other DagMC
