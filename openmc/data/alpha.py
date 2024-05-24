@@ -21,7 +21,6 @@ from .endf import Evaluation, get_head_record, get_tab1_record, get_list_record
 from .function import Tabulated1D
 
 _REACTION_NAME = {
-<<<<<<< HEAD
     4: ("(alpha,n)", "an"),
     16: ("(alpha,2n)", "a2n"),
     17: ("(alpha,3n)", "a3n"),
