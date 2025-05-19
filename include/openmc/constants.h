@@ -355,7 +355,7 @@ enum class RunMode {
   VOLUME
 };
 
-enum class SolverType { MONTE_CARLO, RANDOM_RAY };
+enum class SolverType { MONTE_CARLO, RANDOM_RAY, DETERMINISTIC };
 
 enum class RandomRayVolumeEstimator { NAIVE, SIMULATION_AVERAGED, HYBRID };
 enum class RandomRaySourceShape { FLAT, LINEAR, LINEAR_XY };

@@ -40,6 +40,10 @@ int main(int argc, char* argv[])
       openmc_run_random_ray();
       err = 0;
       break;
+    case SolverType::DETERMINISTIC:
+      openmc_run_determ();
+      err = 0;
+      break;
     }
     break;
   case RunMode::PLOTTING:
