@@ -328,6 +328,7 @@ endif()
 #===============================================================================
 
 list(APPEND libopenmc_SOURCES
+  src/deterministic_sim/determ_simulation.cpp
   src/bank.cpp
   src/boundary_condition.cpp
   src/bremsstrahlung.cpp
