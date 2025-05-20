@@ -386,17 +386,18 @@ HexagonalMesh::HexMeshIndex HexagonalMesh::get_hexindices(
 HexagonalMesh::HexMeshIndex HexagonalMesh::round_frac_hexindex(vector<double> frac_ijkl) const
 {
   std::vector<double> diff(4);
-  HexMeshIndex ijkl = {0,0,0,1};
+  HexMeshIndex ijkl {0,0,0,1};
 
   for (int i = 0; i < frac_ijkl.size(); ++i){
     diff[i] = (std::abs(std::round(frac_ijkl[i])-frac_ijkl[i]));
+    ijkl[i] = std::round(frac_ijkl[i]);
   }
   if (diff[0] > diff[1] && diff[0] > diff[2]) {
     ijkl[0] = -ijkl[1] -ijkl[2];
   } else if (diff[1] > diff[2]) {
     ijkl[1] = -ijkl[0] - ijkl[2];
   } else {
-    ijkl[2] = -ijkl[1] - ijkl[2];
+    ijkl[2] = -ijkl[0] - ijkl[1];
   }
   // z-coordinate should be treated differently
   ijkl[3] = std::ceil(frac_ijkl[3]);
