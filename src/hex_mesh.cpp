@@ -334,7 +334,7 @@ double HexagonalMesh::frac_hexindex_in_direction(const Position& r, int i) const
   case 1:
     return (sqrt(3.0) / 3.0 * r.x + 1.0 / 3.0 * r.y) / this->size_;
   case 2:
-    return -(2.0 / 3.0 * -r.y) / this->size_ - (sqrt(3.0) / 3.0 * r.x + 1.0 / 3.0 * r.y) / this->size_;
+    return -(2.0 / 3.0 * -r.y) / this->size_ -(sqrt(3.0) / 3.0 * r.x + 1.0 / 3.0 * r.y) / this->size_;
   case 3:
     // z is idx 1 in width_ and lower_left_ / upper_right_
     return (r.z - lower_left_[1]) / width_[1];
@@ -366,45 +366,18 @@ HexagonalMesh::HexMeshIndex HexagonalMesh::get_hexindices(
 {
   // return index of mesh element in hexes
   local_coords(r);
-  vector<double> frac_cds(4);
-  vector<int> rd_cds;
-  vector<double> diff_cds;
+  vector<double> frac_cds {0, 0, 0, 0};
 
   // r coordinate
   frac_cds[0] = frac_hexindex_in_direction(r,0);
-  //frac_cds.push_back((2.0 / 3.0 * -r.y) / this->size_);
   // q coordinate
   frac_cds[1] = frac_hexindex_in_direction(r,1);
-  //frac_cds.push_back((sqrt(3.0) / 3.0 * r.x + 1.0 / 3.0 * r.y) / this->size_);
   // s coordinate
   frac_cds[2] = frac_hexindex_in_direction(r,2);
-  //frac_cds.push_back( -frac_cds[0] - frac_cds[1]);
-  
   // z-coordinate
   frac_cds[3] = frac_hexindex_in_direction(r,3);
 
   HexMeshIndex idx = round_frac_hexindex(frac_cds);
-//  for (auto it = frac_cds.begin(); it != frac_cds.end(); it++) {
-//    rd_cds.push_back(std::round(*it));
-//    diff_cds.push_back(std::abs(std::round(*it)-*it));
-//  }
-//  if (diff_cds[0] > diff_cds[1] && diff_cds[0] > diff_cds[2]) {
-//    rd_cds[0] = -rd_cds[1] - rd_cds[2];
-//  } else if (diff_cds[1] > diff_cds[2]) {
-//    rd_cds[1] = -rd_cds[0] - rd_cds[2];
-//  } else {
-//    rd_cds[2] = -rd_cds[1] - rd_cds[2];
-//  }
-
-  // z is idx 1 in width_ and lower_left_ / upper_right_
-//  rd_cds.push_back(std::ceil((r.z - lower_left_[1]) / width_[1]));
-
-  //transfer to HexMeshIndex
-//  HexMeshIndex idx;
-//  for (int i = 0; i < 4; i++){
-//    idx[i] = rd_cds[i];
-//  }
-
   // check if either index is out of bounds
   in_mesh = in_hexmesh(idx);
   return idx;
