@@ -64,6 +64,8 @@ private:
   vector<int> mesh_bins_;
   vector<double> mesh_fractional_lengths_;
 
+  vector<int> active_tallies_;
+
   int negroups_;
   //  FlatSourceDomain* domain_ {nullptr}; // pointer to domain that has flat
   //  source
@@ -71,7 +73,48 @@ private:
   double distance_travelled_ {0};
   bool is_active_ {false};
   bool is_alive_ {true};
-}; // class RandomRay
+}; // class DetermRay
+
+/* The class DetermSimulation entails methods etc for running
+ * a determinstic Green's function approach simulation
+ */
+
+class DetermTarget {
+  // Helper calss to keep track of ray targets for a set of tallies
+
+private:
+  Position targets;
+};
+
+class DetermSimulation {
+  // Constructors
+  DetermSimulation();
+
+  // find all applicable tallies
+  void initialize_tally_list();
+  void dummy_initialize_tally_list();
+
+  // populate the list of targets
+  void initialize_targets();
+  void dummy_initialize_targets();
+
+  // populate the list of sources
+  void initialize_sources();
+
+private
+  vector<DetermTarget> targets_;
+};
+
+class DetermRay : Particle {
+
+public:
+  DetermRay() : DetermRay(uint64_t ray_id, SourceSite s, SourceSite t);
+
+  void event_advance_ray();
+  void attenuate(double distance);
+
+  void transport_history_based_single_ray();
+}
 
 } // namespace openmc
 
