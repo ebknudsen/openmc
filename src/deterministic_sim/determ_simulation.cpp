@@ -154,10 +154,63 @@ DetermSimulation::simulate()
 
 DetermRay::DetermRay(uint64_t ray_id, SourceSite ss, SourceSite tgt)
 {
+  this->from_source(&ss);
+
   // find direction
-  Position uu = tgt.u() - ss.u();
+  Position uu = tgt.r() - ss.r();
+  // distance to finally travel
+  total_distance_ = uu.norm();
   // normalize
-  uu = uu / u.dot(u);
+  uu /= uu.norm();
+  u() = uu;
+
+  wgt() = 1.0;
+
+  id() = ray_id;
+
+  site.E = 12e6;
+
+  // Locate ray
+  if (lowest_coord().cell == C_NONE) {
+    if (!exhaustive_find_cell(*this)) {
+      this->mark_as_lost(
+        "Could not find the cell containing particle " + std::to_string(id()));
+    }
+
+    // Set birth cell attribute
+    if (cell_born() == C_NONE)
+      cell_born() = lowest_coord().cell;
+  }
 }
 
-void DetermRay::transport_history_based_single_ray() {} // namespace openmc
+void DetermRay::transport_history_based_single_ray()
+{
+  // figure out total_distance
+
+  // move the ray until total_distance has been achieved, attenuating it on the
+  // way
+  while (traveled_distance_ < total_distance_) {
+
+    event_advance_ray();
+
+    // update distance traveled
+  }
+  // advance ray
+  r() += distance * u();
+}
+
+void DetermRay::event_advance_ray()
+{
+  boundary() = distance_to_boundary(this);
+  double distance = boundary().distance;
+
+  traveled_distance += distance;
+  attenuate_flux(ditance);
+}
+
+void DetermRay::attenuate_flux()
+{
+  // modelled after the random ray method here - but simpler.
+}
+
+} // namespace openmc
